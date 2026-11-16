@@ -9,8 +9,6 @@ $search = trim($_GET['search'] ?? '');
 $brands = $search === ''
     ? getAllBrands($pdo)
     : searchBrands($pdo, $search);
-
-$brands = getAllBrands($pdo);
 ?>
 
 <!DOCTYPE html>
@@ -24,11 +22,17 @@ $brands = getAllBrands($pdo);
     <h1>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></h1>
     <a href="logout.php">Logout</a>
 
-    <h2>Search Brand</h2>
-    <form method="GET">
-        <input type="text" name="search" placeholder="Search Brand Name" value="<?php echo htmlspecialchars($search); ?>">
-        <button type="submit">Search</button>
-    </form>
+    <h2>Search Brands</h2>
+<form method="GET" action="index.php">
+    <label for="search">Brand name, country, or founder</label>
+    <input
+        type="search"
+        name="search"
+        id="search"
+        value="<?php echo htmlspecialchars($search); ?>"
+    >
+    <button type="submit">Search</button>
+</form>
 
     <h2>Add Brand</h2>
 
@@ -67,17 +71,17 @@ $brands = getAllBrands($pdo);
     <?php else : ?>
         <?php foreach ($brands as $brand) { ?>
             <div style="border:1px solid #ccc; padding:15px; margin:10px 0;">
-                <h3><?php echo htmlspecialchars($brand['brand_name']); ?></h3>
-                <p>Country: <?php echo htmlspecialchars($brand['country_of_origin']); ?></p>
-                <p>Founder: <?php echo htmlspecialchars($brand['founder']); ?></p>
-                <p>Established Year: <?php echo htmlspecialchars($brand['established_year']); ?></p>
-                <p>Added By: <?php echo htmlspecialchars($brand['added_by_name'] ?? 'unknown'); ?></p>
-                <p>Updated By: <?php echo htmlspecialchars($brand['updated_by_name'] ?? 'unknown'); ?></p>
+            <h3><?php echo htmlspecialchars($brand['brand_name']); ?></h3>
+            <p>Country: <?php echo htmlspecialchars($brand['country_of_origin']); ?></p>
+            <p>Founder: <?php echo htmlspecialchars($brand['founder']); ?></p>
+            <p>Established Year: <?php echo htmlspecialchars($brand['established_year']); ?></p>
+            <p>Added By: <?php echo htmlspecialchars($brand['added_by_name'] ?? 'unknown'); ?></p>
+            <p>Updated By: <?php echo htmlspecialchars($brand['updated_by_name'] ?? 'unknown'); ?></p>
 
-                <a href="viewprojects.php?brand_id=<?php echo $brand['brand_id']; ?>">View Guitars</a> |
-                <a href="editbrands.php?brand_id=<?php echo $brand['brand_id']; ?>">Edit</a> |
-                <a href="deletebrands.php?brand_id=<?php echo $brand['brand_id']; ?>">Delete</a>
-            </div>    
+            <a href="viewprojects.php?brand_id=<?php echo $brand['brand_id']; ?>">View Guitars</a> |
+            <a href="editbrand.php?brand_id=<?php echo $brand['brand_id']; ?>">Edit</a> |
+            <a href="deletebrand.php?brand_id=<?php echo $brand['brand_id']; ?>">Delete</a>
+            </div>
         <?php } ?>
     <?php endif; ?>
 </body>
