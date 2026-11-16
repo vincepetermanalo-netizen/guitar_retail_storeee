@@ -48,6 +48,20 @@ function getAllBrands($pdo) {
     return $stmt->fetchAll();
 }
 
+function searchBrands($pdo, $keyword) {
+    $sql = "SELECT b.*, a.username AS added_by_name, u.username AS updated_by_name
+    FROM brands b
+    LEFT JOIN users a ON b.added_by = a.user_id
+    LEFT JOIN users u ON b.updated_by = u.user_id
+    WHERE b.brand_name LIKE :keyword
+        OR b.country_of_origin LIKE :keyword
+        OR b.founder LIKE :keyword
+    ORDER BY b.brand_id DESC";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$keyword]);
+    return $stmt->fetchAll();
+}
+
 function getBrandByID($pdo, $brand_id) {
     $sql = "SELECT * FROM brands WHERE brand_id = ?";
     $stmt = $pdo->prepare($sql);
@@ -97,6 +111,22 @@ function getGuitarsByBrand($pdo, $brand_id) {
     $stmt->execute([$brand_id]);
     return $stmt->fetchAll();
 }
+
+function searchGuitarsByBrand($pdo, $brand_id) {
+    $sql = "SELECT g.*, a.username AS added_by_name, u.username AS updated_by_name
+    FROM guitars g
+    LEFT JOIN users a ON g.added_by = a.user_id
+    LEFT JOIN users u ON g.updated_by = u.user_id
+    WHERE g.brand_id = :brand_id
+        AND (g.guitar_name LIKE :keyword OR g.technologies_used LIKE :keyword)
+    ORDER BY g.guitar_id DESC";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':brand_id' => $brand_id,
+        ':keyword' => '%' . $keyword .'%'
+    ]);
+    return $stmt->fetchAll();
+}   
 
 function getGuitarByID($pdo, $guitar_id) {
     $sql = "SELECT * FROM guitars WHERE guitar_id = ?";
