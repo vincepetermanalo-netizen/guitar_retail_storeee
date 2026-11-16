@@ -5,6 +5,11 @@ requireLogin();
 require_once 'core/dbConfig.php';
 require_once 'core/models.php';
 
+$search = trim($_GET['search'] ?? '');
+$brands = $search === ''
+    ? getAllBrands($pdo)
+    : searchBrands($pdo, $search);
+
 $brands = getAllBrands($pdo);
 ?>
 
@@ -18,6 +23,12 @@ $brands = getAllBrands($pdo);
 <body>
     <h1>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></h1>
     <a href="logout.php">Logout</a>
+
+    <h2>Search Brand</h2>
+    <form method="GET">
+        <input type="text" name="search" placeholder="Search Brand Name" value="<?php echo htmlspecialchars($search); ?>">
+        <button type="submit">Search</button>
+    </form>
 
     <h2>Add Brand</h2>
 
@@ -51,19 +62,23 @@ $brands = getAllBrands($pdo);
 
     <h2>Brands</h2>
 
-    <?php foreach ($brands as $brand) { ?>
-        <div style="border:1px solid #ccc; padding:15px; margin:10px 0;">
-            <h3><?php echo htmlspecialchars($brand['brand_name']); ?></h3>
-            <p>Country: <?php echo htmlspecialchars($brand['country_of_origin']); ?></p>
-            <p>Founder: <?php echo htmlspecialchars($brand['founder']); ?></p>
-            <p>Established Year: <?php echo htmlspecialchars($brand['established_year']); ?></p>
-            <p>Added By: <?php echo htmlspecialchars($brand['added_by_name'] ?? 'unknown'); ?></p>
-            <p>Updated By: <?php echo htmlspecialchars($brand['updated_by_name'] ?? 'unknown'); ?></p>
+    <?php if (empty($brands)) : ?>
+        <p>No matching brand found.</p>
+    <?php else : ?>
+        <?php foreach ($brands as $brand) { ?>
+            <div style="border:1px solid #ccc; padding:15px; margin:10px 0;">
+                <h3><?php echo htmlspecialchars($brand['brand_name']); ?></h3>
+                <p>Country: <?php echo htmlspecialchars($brand['country_of_origin']); ?></p>
+                <p>Founder: <?php echo htmlspecialchars($brand['founder']); ?></p>
+                <p>Established Year: <?php echo htmlspecialchars($brand['established_year']); ?></p>
+                <p>Added By: <?php echo htmlspecialchars($brand['added_by_name'] ?? 'unknown'); ?></p>
+                <p>Updated By: <?php echo htmlspecialchars($brand['updated_by_name'] ?? 'unknown'); ?></p>
 
-            <a href="viewprojects.php?brand_id=<?php echo $brand['brand_id']; ?>">View Guitars</a> |
-            <a href="editbrands.php?brand_id=<?php echo $brand['brand_id']; ?>">Edit</a> |
-            <a href="deletebrands.php?brand_id=<?php echo $brand['brand_id']; ?>">Delete</a>
-        </div>
-    <?php } ?>
+                <a href="viewprojects.php?brand_id=<?php echo $brand['brand_id']; ?>">View Guitars</a> |
+                <a href="editbrands.php?brand_id=<?php echo $brand['brand_id']; ?>">Edit</a> |
+                <a href="deletebrands.php?brand_id=<?php echo $brand['brand_id']; ?>">Delete</a>
+            </div>    
+        <?php } ?>
+    <?php endif; ?>
 </body>
 </html>
