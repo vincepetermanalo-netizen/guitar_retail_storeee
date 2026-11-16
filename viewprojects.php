@@ -8,6 +8,11 @@ require_once 'core/models.php';
 $brand_id = $_GET['brand_id'] ?? 0;
 $brand = getBrandByID($pdo, $brand_id);
 $guitars = getGuitarsByBrand($pdo, $brand_id);
+
+$search = trim($_GET['search'] ?? '');
+$guitars = $search === ''
+    ? getGuitarsByBrand($pdo, $brand_id)
+    : searchGuitarsByBrand($pdo, $brand_id, $search);
 ?>
 
 <!DOCTYPE html>
@@ -22,6 +27,12 @@ $guitars = getGuitarsByBrand($pdo, $brand_id);
 
     <h1><?php echo htmlspecialchars($brand['brand_name'] ?? 'Brand'); ?></h1>
 
+    <h2>Search Guitar</h2>
+    <form method="GET">
+        <input type="hidden" name="brand_id" value="<?php echo (int)$brand_id; ?>">
+        <input type="text" name="search" placeholder="Search Guitar Name" value="<?php echo htmlspecialchars($search); ?>">
+        <button type="submit">Search</button>
+    </form>
     <h2>Add Guitar</h2>
 
     <form action="core/handleForms.php" method="POST">
@@ -46,16 +57,20 @@ $guitars = getGuitarsByBrand($pdo, $brand_id);
 
     <h2>Guitars</h2>
 
-    <?php foreach ($guitars as $guitar) { ?>
-        <div style="border:1px solid #ccc; padding:15px; margin:10px 0;">
-            <h3><?php echo htmlspecialchars($guitar['guitar_name']); ?></h3>
-            <p>Technologies: <?php echo htmlspecialchars($guitar['technologies_used']); ?></p>
-            <p>Added By: <?php echo htmlspecialchars($guitar['added_by_name'] ?? 'unknown'); ?></p>
-            <p>Updated By: <?php echo htmlspecialchars($guitar['updated_by_name'] ?? 'unknown'); ?></p>
+    <?php if (empty($guitars)) : ?>
+        <p>No matching guitar found.</p>
+    <?php else : ?>
+        <?php foreach ($guitars as $guitar) { ?>
+            <div style="border:1px solid #ccc; padding:15px; margin:10px 0;">
+                <h3><?php echo htmlspecialchars($guitar['guitar_name']); ?></h3>
+                <p>Technologies: <?php echo htmlspecialchars($guitar['technologies_used']); ?></p>
+                <p>Added By: <?php echo htmlspecialchars($guitar['added_by_name'] ?? 'unknown'); ?></p>
+                <p>Updated By: <?php echo htmlspecialchars($guitar['updated_by_name'] ?? 'unknown'); ?></p>
 
-            <a href="editguitars.php?guitar_id=<?php echo $guitar['guitar_id']; ?>&brand_id=<?php echo $brand_id; ?>">Edit</a> |
-            <a href="deleteguitars.php?guitar_id=<?php echo $guitar['guitar_id']; ?>&brand_id=<?php echo $brand_id; ?>">Delete</a>
-        </div>
-    <?php } ?>
+                <a href="editguitars.php?guitar_id=<?php echo $guitar['guitar_id']; ?>&brand_id=<?php echo $brand_id; ?>">Edit</a> |
+                <a href="deleteguitars.php?guitar_id=<?php echo $guitar['guitar_id']; ?>&brand_id=<?php echo $brand_id; ?>">Delete</a>
+            </div>
+        <?php } ?>
+    <?php endif; ?>
 </body>
 </html>
