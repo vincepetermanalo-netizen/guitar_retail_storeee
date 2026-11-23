@@ -32,4 +32,7 @@ CREATE TABLE guitars (
     updated_by INT NULL,
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    deleted_by INT NULL DEFAULT NULL,
+    FOREIGN KEY (deleted_by) REFERENCES users(user_id) ON DELETE SET NULL
 );
