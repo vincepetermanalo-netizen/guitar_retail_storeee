@@ -158,47 +158,54 @@ if (isset($_POST['insertGuitarBtn'])) {
 }
 
 if (isset($_POST['editGuitarBtn'])) {
-    $guitar_id = (int)($_POST['guitar_id'] ?? 0);
-    $brand_id = (int)($_POST['brand_id'] ?? 0);
-    $guitarName = trim($_POST['guitarName'] ?? '');
-    $technologiesUsed = trim($_POST['technologiesUsed'] ?? '');
+    $guitar_id = $_POST['guitar_id'];
+    $brand_id = $_POST['brand_id'];
+    $guitarName = trim($_POST['guitarName']);
+    $technologiesUsed = trim($_POST['technologiesUsed']);
 
-    if ($guitar_id <= 0 || $brand_id <= 0 || $guitarName === '') {
-        $_SESSION['message'] = 'Guitar name and record IDs are required.';
-        header("Location: ../viewprojects.php?brand_id=" . $brand_id);
+    if ($guitarName === '') {
+        $_SESSION['message'] = "Guitar name is required.";
+        header("Location: ../editguitars.php?guitar_id=" . $guitar_id . "&brand_id=" . $brand_id);
         exit;
     }
 
-    $query = updateGuitarByID(
-        $pdo,
-        $guitarName,
-        $technologiesUsed,
-        $guitar_id,
-        $user_id
-    );
+    $query = updateGuitarByID($pdo, $guitarName, $technologiesUsed, $guitar_id, $user_id);
 
     if ($query) {
         header("Location: ../viewprojects.php?brand_id=" . $brand_id);
         exit;
+    } else {
+        $_SESSION['message'] = "Guitar update failed.";
+        header("Location: ../editguitars.php?guitar_id=" . $guitar_id . "&brand_id=" . $brand_id);
+        exit;
     }
-
-    $_SESSION['message'] = 'Guitar update failed.';
-    header("Location: ../editguitars.php?guitar_id=" . $guitar_id . "&brand_id=" . $brand_id);
-    exit;
 }
 
 if (isset($_POST['deleteGuitarBtn'])) {
     $guitar_id = $_POST['guitar_id'];
     $brand_id = $_POST['brand_id'];
 
-    $query = deleteGuitarByID($pdo, $guitar_id);
-
-    if ($query) {
-        header("Location: ../viewprojects.php?brand_id=" . $brand_id);
-        exit;
-    } else {
-        $_SESSION['message'] = "Guitar deletion failed.";
-        header("Location: ../viewprojects.php?brand_id=" . $brand_id);
+    if (deleteGuitarByID($pdo, $guitar_id, $user_id)) {
+        header("LocationL ../viewprojects.php?brand_id=" . $brand_id);
         exit;
     }
+
+    $_SESSION['message'] = "Guitar deletion failed.";
+    header("Location: ../viewprojects.php?brand_id=" . $brand_id);
+    exit;
+}
+
+if (isset($_POST['restoreGuitarBtn'])) {
+    $guitar_id = (int)($_POST['guitar_id'] ?? 0);
+    $brand_id = (int)($_POST['brand_id'] ?? 0);
+
+    if (restoreGuitarByID($pdo, $guitar_id)) {
+        $_SESSION['message'] = "Guitar Restored Successfully!";
+        header("Location: ../recyclebin.php");
+        exit;
+    }
+
+    $_SESSION['message'] = "Guitar Restoration Failed!";
+    header("Location: ../recyclebin.php");
+    exit;
 }
